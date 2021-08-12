@@ -536,7 +536,7 @@ namespace Tesseract.Interop
         #endregion
     }
 
-    unsafe static class LeptonicaApi
+    unsafe public static class LeptonicaApi
     {
         private static ILeptonicaApiSignatures native;
 
