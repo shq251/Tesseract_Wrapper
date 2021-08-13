@@ -232,6 +232,14 @@ namespace Tesseract.Interop
         [RuntimeDllImport(Constants.LeptonicaDllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixScale")]
         IntPtr pixScale(HandleRef pixs, float scalex, float scaley);
 
+        [RuntimeDllImport(Constants.LeptonicaDllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixConvertTo1")]
+        IntPtr pixConvertTo1(HandleRef pixs, int threshold);
+
+        [RuntimeDllImport(Constants.LeptonicaDllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixOrientDetect")]
+        int pixOrientDetect(HandleRef pixs, out float pupconf, out float pleftconf, int mincount, int debug);
+
+        [RuntimeDllImport(Constants.LeptonicaDllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "pixRotate180")]
+        IntPtr pixRotate180(HandleRef pixd, HandleRef pixs);
         #endregion
 
         #region Color map
