@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -285,9 +286,93 @@ namespace Tesseract_Sample
         private void PerecentageBtn_Click(object sender, RoutedEventArgs e)
         {
             int percentage = 0;
-            if(monitor!=null)
+            if (monitor != null)
                 percentage = monitor.MonitorGetProgress();
             percentagetxt.Text = "Perecentage: " + percentage;
+        }
+
+        private void AutoRotateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var testImagePath = @"C:\Users\hdeepak\Documents\Sharpdesk Desktop\AutoRotate files\Multipage.tif";
+            HandleRef handle;
+            var tessdata = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
+
+            try
+            {
+                using (var engine = new TesseractEngine(tessdata, "LANG_ENG", EngineMode.Default))
+                {
+
+                    if (testImagePath.ToLower().EndsWith(".tif") || testImagePath.ToLower().EndsWith(".tiff"))
+                    {
+
+                        using (PixArray pages = PixArray.LoadMultiPageTiffFromFile(testImagePath))
+                        {
+
+                            foreach (Pix item in pages)
+                            {
+                                Pix RotatedImage = RotateImage(item.Handle, engine, item);
+                                RotatedImage.Save("");
+                            }
+
+                        }
+                    }
+                    else
+                    {
+
+                        var pixHandle = Tesseract.Interop.LeptonicaApi.Native.pixRead(testImagePath);
+                        if (pixHandle == IntPtr.Zero)
+                        {
+                            throw new IOException(String.Format("Failed to load image '{0}'.", testImagePath));
+                            return;
+                        }
+                        Pix pix = Tesseract.Pix.Create(pixHandle);
+                        handle = new HandleRef(engine, pixHandle);
+                        Pix RotatedImage = RotateImage(handle, engine, pix);
+                        if (RotatedImage != null)
+                            RotatedImage.Save("");
+                    }
+                }
+            }
+            catch (Exception x)
+            {
+                //Trace.TraceError(e.ToString());
+            }
+        }
+
+        private static Pix RotateImage(HandleRef handle, TesseractEngine engine, Pix pix)
+        {
+            //"PixOrientDetect" API method will accpet 1bpp image type So below API method will convert to 1bpp.
+            var pixconv = Tesseract.Interop.LeptonicaApi.Native.pixConvertTo1(handle, 130);
+
+            float pupconf; float pleftconf;
+            int value = Tesseract.Interop.LeptonicaApi.Native.pixOrientDetect(new HandleRef(engine, pixconv), out pupconf, out pleftconf, 0, 0);
+
+            //-----------------****************------------------//
+            //0 deg: upconf >> 1,    abs(upconf) >> abs(leftconf)
+            //90 deg: leftconf >> 1,  abs(leftconf) >> abs(upconf)
+            //180 deg: upconf << -1,   abs(upconf) >> abs(leftconf)
+            //270 deg: leftconf << -1, abs(leftconf) >> abs(upconf)
+            //-----------------****************------------------//
+
+            float up_Conf = Math.Abs(pupconf);
+            float pleft_Conf = Math.Abs(pleftconf);
+
+            Pix RotatedImg = null;
+            if (pleftconf > 1 && pleft_Conf > up_Conf)
+            {
+                RotatedImg = pix.Rotate90(1);
+            }
+            else if (pupconf < -1 && up_Conf > pleft_Conf)
+            {
+                var rotatPtr = Tesseract.Interop.LeptonicaApi.Native.pixRotate180(handle, handle);
+                RotatedImg = Tesseract.Pix.Create(rotatPtr);
+            }
+            else if (pleftconf < -1 && pleft_Conf > up_Conf)
+            {
+                RotatedImg = pix.Rotate90(-1);
+            }
+
+            return RotatedImg;
         }
     }
 }

@@ -13,8 +13,9 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20">
                 <Button x:Name="previewFileBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Preview" HorizontalAlignment="Left" Click="previewFileBtn_Click"></Button>
-                <Button x:Name="PerecentageBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Perecentage" HorizontalAlignment="Left" Click="PerecentageBtn_Click"/>
+                <Button x:Name="PerecentageBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Perecentage" HorizontalAlignment="Left" Click="PerecentageBtn_Click" Visibility="Collapsed"/>
                 <Button x:Name="CancelBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Cancel" HorizontalAlignment="Left" Click="cancelBtn_Click"/>
+                <Button x:Name="AutoRotateBtn" Margin="20,0,0,0" Width="150" Height="30" Content="AutoRotate" HorizontalAlignment="Left" Click="AutoRotateBtn_Click"/>
             </StackPanel>
             
             <TextBlock Text="Convert to Text" Margin="20,20,0,0" FontSize="20" FontWeight="Bold"></TextBlock>
