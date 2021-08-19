@@ -26,6 +26,8 @@ namespace Tesseract_Sample
     {
         public string pdffilePath = "";
         public string txtfilePath = "";
+        public bool btextonly = false;
+        List<RenderedFormat> RenderedFormatList = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -34,7 +36,7 @@ namespace Tesseract_Sample
         private void browseFileBtn_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
-            dialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.tif;*.tiff;*.bmp...";
+            dialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.tif;*.tiff;*.bmp;*.JP2;*.ps;*.JPC;*.PCX;*.DCX...";
             dialog.InitialDirectory = @"C:\Users\qsaddam\Documents\Test_input\jpn";//System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             dialog.Title = "Please select an image file.";
             dialog.Multiselect = false;
@@ -72,29 +74,22 @@ namespace Tesseract_Sample
         private void worker_DoWork1(object sender, DoWorkEventArgs e)
         {
             var ENGLISH_LANGUAGE = @"jpn+eng";
-
-            //var blogPostImage = filePathTextBox.Text;
             var tessdata = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
             string resultPath = blogPostImage;
             using (var ocrEngine = new TesseractEngine(tessdata, ENGLISH_LANGUAGE, EngineMode.Default))
             {
                 //string ext = Path.GetExtension(resultPath);
-                var examplePixPath = System.IO.Path.GetDirectoryName(resultPath) + "\\" + System.IO.Path.GetFileNameWithoutExtension(resultPath);
-                using (var renderer = ResultRenderer.CreatePdfRenderer(examplePixPath, tessdata, false))
+                var examplePixPath = System.IO.Path.ChangeExtension(resultPath, null);
+                using (var renderer = GetRendererHandler(resultPath, tessdata, btextonly))
                 {
-
                     var imageName = System.IO.Path.GetFileNameWithoutExtension(resultPath);
                     using (var pixA = ReadImageFileIntoPixArray(resultPath))
                     {
-
-                        //var ocrProgressHandler = new EtextDesc.TessProgressFunc(OnProgress);
-                        //monitor.MonitorSetProgressFunc(ocrProgressHandler);
                         int expectedPageNumber = 0;
                         using (renderer.BeginDocument(imageName))
                         {
                             foreach (var pix in pixA)
                             {
-
                                 using (var page = ocrEngine.Process(pix, imageName))
                                 {
                                     monitor = new EtextDesc();
@@ -109,29 +104,22 @@ namespace Tesseract_Sample
                     }
                 }
             }
-            //using (var ocrEngine = new Tesseract.TesseractEngine(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), ENGLISH_LANGUAGE, EngineMode.Default))
-            //{
-            //    using (var pixA = ReadImageFileIntoPixArray(blogPostImage))
-            //    {
-            //        //using (var page = ocrEngine.Process(imageWithText, blogPostImage))
-            //        {
-            //            var path = System.IO.Path.GetDirectoryName(blogPostImage) + "\\" + System.IO.Path.GetFileNameWithoutExtension(blogPostImage);
-            //            using (var renderer = ResultRenderer.CreatePdfRenderer(path, System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), false))
-            //            {
-            //                using (renderer.BeginDocument(System.IO.Path.GetFileNameWithoutExtension(blogPostImage)))
-            //                {
-            //                    foreach (var pix in pixA)
-            //                    {
-            //                        using (var page = ocrEngine.Process(pix, blogPostImage))
-            //                        {
-            //                            var addedPage = renderer.AddPage(page);
-            //                        }
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }                            
-            //}
+        }
+
+        private IResultRenderer GetRendererHandler(string destPath, string fontDir, bool textonly)
+        {
+            string ext = System.IO.Path.GetExtension(destPath);
+            string ImagePathWithoutExtension = System.IO.Path.ChangeExtension(destPath, null);
+            if(textonly && ext.ToLower().Equals(".pdf"))
+            {
+                return ResultRenderer.CreatePdfRenderer(ImagePathWithoutExtension, fontDir, btextonly);
+            }
+            else
+            {
+                if(RenderedFormatList.Count > 0)
+                    return ResultRenderer.CreateRenderers(ImagePathWithoutExtension, fontDir, RenderedFormatList);
+            }
+            return ResultRenderer.CreatePdfRenderer(ImagePathWithoutExtension, fontDir, btextonly);
         }
 
         public bool OnProgress(IntPtr monitor1, int left, int right, int top, int bottom)
@@ -142,7 +130,6 @@ namespace Tesseract_Sample
             if (monitor != null)
                 percentage = monitor.MonitorGetProgress();
             Application.Current.Dispatcher.Invoke(() => { percentagetxt.Text = "Perecentage: " + percentage; });
-
             return true;
         }
 
@@ -291,6 +278,17 @@ namespace Tesseract_Sample
             percentagetxt.Text = "Perecentage: " + percentage;
         }
 
+        private void TextCheckUncheckClick(object sender, RoutedEventArgs e)
+        {
+            if (TextOnlyCHBtn.IsChecked == true)
+            {
+                btextonly = true;
+            }
+            else
+            {
+                btextonly = false;
+            }
+        }
         private void AutoRotateBtn_Click(object sender, RoutedEventArgs e)
         {
             var testImagePath = @"C:\Users\hdeepak\Documents\Sharpdesk Desktop\AutoRotate files\Multipage.tif";
@@ -338,7 +336,38 @@ namespace Tesseract_Sample
                 //Trace.TraceError(e.ToString());
             }
         }
+        private void ComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string RendererFormat = ((ComboBoxItem)CompboConverter.SelectedItem).Content.ToString();
+            if (RendererFormat.Equals("PDF"))
+            {
+                if (TextOnlyCHBtn != null && TextOnlyCHBtn.Visibility == Visibility.Collapsed)
+                    TextOnlyCHBtn.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                if (TextOnlyCHBtn != null && TextOnlyCHBtn.Visibility == Visibility.Visible)
+                    TextOnlyCHBtn.Visibility = Visibility.Collapsed;
+            }
+            if (RenderedFormatList == null) RenderedFormatList = new List<RenderedFormat>();
+            {
+                RenderedFormatList.Clear();
+                RenderedFormatList.Add(RenderFormatItemChoose(RendererFormat));
+            }
+        }
 
+        private RenderedFormat RenderFormatItemChoose(string pdf)
+        {
+            switch (pdf)
+            {
+                case "PDF": return RenderedFormat.PDF;
+                case "TEXT": return RenderedFormat.TEXT;
+                case "HOCR": return RenderedFormat.HOCR;
+                case "BOX": return RenderedFormat.BOX;
+                case "UNLV": return RenderedFormat.UNLV;
+                default: return RenderedFormat.PDF;
+            }
+        }
         private static Pix RotateImage(HandleRef handle, TesseractEngine engine, Pix pix)
         {
             //"PixOrientDetect" API method will accpet 1bpp image type So below API method will convert to 1bpp.

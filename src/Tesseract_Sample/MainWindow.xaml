@@ -5,7 +5,21 @@
     <Grid>
         <TextBlock Name="percentagetxt" Text="Perecentage:" Margin="400,0,0,0" FontSize="20" FontWeight="Bold"></TextBlock>
         <StackPanel Orientation="Vertical" Margin="15">
-            <TextBlock Text="Convert to PDF" Margin="20,0,0,0" FontSize="20" FontWeight="Bold"></TextBlock>
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <TextBlock Text="Convert to :" Margin="10,0,0,0" FontSize="20" FontWeight="Bold"/>
+                <ComboBox Margin="10,10,0,13" x:Name="CompboConverter" HorizontalAlignment="Left" VerticalAlignment="Top" Width="194" Height="30" SelectionChanged="ComboBoxSelectionChanged">
+                    <ComboBoxItem Content="PDF" IsSelected="True"></ComboBoxItem>
+                    <ComboBoxItem Content="TEXT"></ComboBoxItem>
+                    <ComboBoxItem Content="HOCR"></ComboBoxItem>
+                    <ComboBoxItem Content="BOX"></ComboBoxItem>
+                    <ComboBoxItem Content="UNLV"></ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                <CheckBox x:Name="TextOnlyCHBtn" Margin="10,0,0,0" FontSize="20" FontWeight="Bold" Content ="Enable Text Only Pdf" IsChecked="False" Checked="TextCheckUncheckClick" Unchecked="TextCheckUncheckClick">
+                </CheckBox>
+            </StackPanel>
+            
             <StackPanel Orientation="Horizontal" Margin="20">
                 <TextBox x:Name="filePathTextBox" TextAlignment="Left" VerticalContentAlignment="Center" Width="300" Height="30"></TextBox>
                 <Button x:Name="browseFileBtn" Margin="10,0,0,0" Width="85" Height="30" Content="Browse" Click="browseFileBtn_Click"></Button>
@@ -13,18 +27,18 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20">
                 <Button x:Name="previewFileBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Preview" HorizontalAlignment="Left" Click="previewFileBtn_Click"></Button>
-                <Button x:Name="PerecentageBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Perecentage" HorizontalAlignment="Left" Click="PerecentageBtn_Click" Visibility="Collapsed"/>
+                <Button x:Name="PerecentageBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Perecentage" HorizontalAlignment="Left" Visibility="Collapsed" Click="PerecentageBtn_Click"/>
                 <Button x:Name="CancelBtn" Margin="20,0,0,0" Width="150" Height="30" Content="Cancel" HorizontalAlignment="Left" Click="cancelBtn_Click"/>
                 <Button x:Name="AutoRotateBtn" Margin="20,0,0,0" Width="150" Height="30" Content="AutoRotate" HorizontalAlignment="Left" Click="AutoRotateBtn_Click"/>
             </StackPanel>
             
-            <TextBlock Text="Convert to Text" Margin="20,20,0,0" FontSize="20" FontWeight="Bold"></TextBlock>
-            <StackPanel Orientation="Horizontal" Margin="20">
+            <TextBlock Text="Convert to Text" Margin="20,20,0,0" FontSize="20" FontWeight="Bold" Visibility="Collapsed"></TextBlock>
+            <StackPanel Orientation="Horizontal" Margin="20" Visibility="Collapsed">
                 <TextBox x:Name="filePathTextBox2" TextAlignment="Left" VerticalContentAlignment="Center" Width="300" Height="30"></TextBox>
                 <Button x:Name="browseFileBtn2" Margin="10,0,0,0" Width="85" Height="30" Content="Browse" Click="browseFileBtn2_Click"></Button>
                 <Button x:Name="convertFileBtn2" Margin="10,0,0,0" Width="85" Height="30" Content="Convert" Click="convertFileBtn2_Click"></Button>
             </StackPanel>
-            <Button x:Name="previewFileBtn2" Margin="20,0,0,0" Width="150" Height="30" Content="Preview" HorizontalAlignment="Left" Click="previewFileBtn2_Click"></Button>
+            <Button x:Name="previewFileBtn2" Visibility="Collapsed" Margin="20,0,0,0" Width="150" Height="30" Content="Preview" HorizontalAlignment="Left" Click="previewFileBtn2_Click"></Button>
         </StackPanel>
     </Grid>
 </Window>
