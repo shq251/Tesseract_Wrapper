@@ -123,7 +123,7 @@ namespace InteropDotNet
 
         private IntPtr InternalLoadLibrary(string baseDirectory, string platformName, string fileName)
         {
-            var fullPath = Path.Combine(baseDirectory, Path.Combine(platformName, fileName));
+            var fullPath = Path.Combine(baseDirectory, fileName);
             return File.Exists(fullPath) ? logic.LoadLibrary(fullPath) : IntPtr.Zero;
         }
 
