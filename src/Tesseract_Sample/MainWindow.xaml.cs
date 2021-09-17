@@ -26,6 +26,7 @@ namespace Tesseract_Sample
     {
         public string pdffilePath = "";
         public string txtfilePath = "";
+        public string outputExt = "";
         public bool btextonly = false;
         List<RenderedFormat> RenderedFormatList = null;
         public MainWindow()
@@ -79,6 +80,7 @@ namespace Tesseract_Sample
             using (var ocrEngine = new TesseractEngine(tessdata, ENGLISH_LANGUAGE, EngineMode.Default))
             {
                 //string ext = Path.GetExtension(resultPath);
+                pdffilePath = System.IO.Path.ChangeExtension(resultPath, outputExt);                
                 var examplePixPath = System.IO.Path.ChangeExtension(resultPath, null);
                 using (var renderer = GetRendererHandler(resultPath, tessdata, btextonly))
                 {
@@ -110,8 +112,8 @@ namespace Tesseract_Sample
         {
             string ext = System.IO.Path.GetExtension(destPath);
             string ImagePathWithoutExtension = System.IO.Path.ChangeExtension(destPath, null);
-            if(textonly && ext.ToLower().Equals(".pdf"))
-            {
+            if(textonly && outputExt.ToLower().Equals(".pdf"))
+            {  
                 return ResultRenderer.CreatePdfRenderer(ImagePathWithoutExtension, fontDir, btextonly);
             }
             else
@@ -216,6 +218,7 @@ namespace Tesseract_Sample
         {
             try
             {
+                if (!(outputExt.Equals(".PDF") || outputExt.Equals(".TXT"))) return;
                 if (!string.IsNullOrEmpty(pdffilePath) && !string.IsNullOrWhiteSpace(pdffilePath))
                 {
                     if (System.IO.File.Exists(pdffilePath))
@@ -339,6 +342,7 @@ namespace Tesseract_Sample
         private void ComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string RendererFormat = ((ComboBoxItem)CompboConverter.SelectedItem).Content.ToString();
+            outputExt = "." + RendererFormat;
             if (RendererFormat.Equals("PDF"))
             {
                 if (TextOnlyCHBtn != null && TextOnlyCHBtn.Visibility == Visibility.Collapsed)

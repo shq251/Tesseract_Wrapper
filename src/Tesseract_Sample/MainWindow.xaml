@@ -9,7 +9,7 @@
                 <TextBlock Text="Convert to :" Margin="10,0,0,0" FontSize="20" FontWeight="Bold"/>
                 <ComboBox Margin="10,10,0,13" x:Name="CompboConverter" HorizontalAlignment="Left" VerticalAlignment="Top" Width="194" Height="30" SelectionChanged="ComboBoxSelectionChanged">
                     <ComboBoxItem Content="PDF" IsSelected="True"></ComboBoxItem>
-                    <ComboBoxItem Content="TEXT"></ComboBoxItem>
+                    <ComboBoxItem Content="TXT"></ComboBoxItem>
                     <ComboBoxItem Content="HOCR"></ComboBoxItem>
                     <ComboBoxItem Content="BOX"></ComboBoxItem>
                     <ComboBoxItem Content="UNLV"></ComboBoxItem>
